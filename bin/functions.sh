@@ -511,7 +511,7 @@ extract_img() {
         if [ ! -d "$target_dir/config" ];then
         	mkdir $target_dir/config
     	fi
-    	if [ ! $type = boot ];then #因为分解boot的函数已经执行过了 由于特殊性不能统一在此
+    	if [ ! $type = "boot" ] || [ ! $type = "vendor_boot" ];then #因为分解boot的函数已经执行过了 由于特殊性不能统一在此
             echo $type > $target_dir/config/${name}_info
         fi
     else
