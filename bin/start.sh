@@ -184,7 +184,7 @@ if [ "$base_rom_density" ];then
 fi
 
 # 打包各镜像img
-for pname in ${super_list} ${boot_images};do
+for pname in ${boot_images} ${super_list};do
     if [ -d "portrom/images/$pname" ];then
         repack_img "portrom/images/$pname" $pack_type
     fi

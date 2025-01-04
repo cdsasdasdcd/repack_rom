@@ -114,26 +114,27 @@ unpack_boot() {
         rm -rf $line
     else
     	echo "boot" > ../config/${line}_info
-        if [ -f ramdisk.cpio ]; then   
-            #comp=$(magiskboot decompress ramdisk.cpio | grep -v 'raw' | sed -n 's;.*\[\(.*\)\];\1;p')
+        if [ -f ramdisk.cpio ]; then
+            mv -f ramdisk.cpio ramdisk.cpio.comp
+            comp=`magiskboot decompress ramdisk.cpio.comp ramdisk.cpio 2>&1 | head -n1 | cut -d'[' -f 2 | awk -F']' '{print $1}'`
             echo "$comp" >> ../config/${line}_info
-            if [ "$comp" ]; then                
-                mv -f ramdisk.cpio ramdisk.cpio.$comp
-                magiskboot decompress ramdisk.cpio.$comp ramdisk.cpio > /dev/null 2>&1
-                if [ $? != 0 ] && $comp --help; then
-                    $comp -dc ramdisk.cpio.$comp > ramdisk.cpio
-                fi
+
+
+            if [ "$comp" = "raw" ];then
+                mv -f ramdisk.cpio.comp ramdisk.cpio
+            else
+                rm -r ramdisk.cpio.comp
             fi
+            
             mkdir -p ramdisk
             chmod 755 ramdisk
-            cd ramdisk
-            EXTRACT_UNSAFE_SYMLINKS=1 cpio -d -F ../ramdisk.cpio -i  > /dev/null 2>&1
+            cpio -i -d -F ramdisk.cpio -D ramdisk > /dev/null 2>&1
             if [ "$?" = "1" ]; then
                 error "> 分解 $file_name 中 ramdisk.cpio 失败!"
-                cd ../../
-                rm -rf $line
-                rm -rf config/${line}_*                
+                cd ../
+                rm -rf $line config/${line}_* 
             fi
+            rm -r ramdisk.cpio
         fi
     fi
     cd $pwd        
@@ -147,29 +148,29 @@ repack_boot(){
     line=`basename $input_files`
     
     cd $input_files
-    comp=`sed -n 2p ../config/${line}_info`
-    
-    if [ "$comp" ]; then
-        magiskboot compress=$comp ramdisk_new.cpio
-        if [ $? != 0 ] && $comp --help > /dev/null 2>&1; then
-            $comp -9c ramdisk_new.cpio >ramdisk.cpio.$comp
-        fi
-    else
-        if [ -f ramdisk ];then
-            cd ramdisk && find | sed 1d | cpio -H newc -R 0:0 -o -F ../ramdisk-new.cpio > /dev/null 2>&1;
-            cd ..
+    if [ -d ramdisk ];then
+
+        comp=`sed -n 2p ../config/${line}_info`
+
+        rm -rf ramdisk.cpio
+        cd ramdisk && find | sed 1d | cpio -H newc -R 0:0 -o -F ../ramdisk.cpio > /dev/null 2>&1;
+        cd ..
+
+        if [ ! "$comp" = "raw" ]; then
+            mv `magiskboot compress=$comp ramdisk.cpio 2>&1 | head -n1 | cut -d'[' -f 2 | awk -F']' '{print $1}'` ramdisk.cpio.comp
+            mv -f ramdisk.cpio.comp ramdisk.cpio
+            if [ $? = 1 ]; then
+                error "合成ramdisk.cpio失败！"
+            fi
+
         fi
     fi
 
-    ramdisk=$(ls ramdisk-new* 2>/dev/null | tail -n1)
-    if [ "$ramdisk" ]; then
-        mv -f $ramdisk ramdisk.cpio
-        case $comp in
-        cpio) nocompflag="-n" ;;
-        esac
+    if [ "$comp" = "cpio" ];then
+        flag="-n"
     fi
 
-    magiskboot repack $nocompflag $line.img new-$line.img > /dev/null 2>&1;
+    magiskboot repack $flag $line.img new-$line.img > /dev/null 2>&1;
     rm -rf ramdisk.cpio
 
     if [ ! -d ../out/ ];then
@@ -498,7 +499,6 @@ extract_img() {
         elif [ $type = "erofs" ];then
             extract.erofs -x -i ${part_img} -o $target_dir > /dev/null 2>&1 || { error "分解 ${part_name} 失败" "Extracting ${part_name} failed." ; exit 1; }
         elif [ $type = "boot" ] || [ $type = "vendor_boot" ];then
-            type=boot
             unpack_boot "$part_img" "$target_dir"
         else
             error "无法识别img文件类型，请检查" "Unable to handle img, exit."
@@ -591,7 +591,7 @@ repack_img(){
                 break
             fi
         done
-    elif [ $type = "boot" ];then
+    elif [ $type = "boot" ] || [ $type = "vendor_boot" ];then
     	repack_boot "$input_file"
     fi
     if [ -f "$img_out" ];then
