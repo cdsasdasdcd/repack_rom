@@ -113,7 +113,7 @@ unpack_boot() {
         cd ../
         rm -rf $line
     else
-    	echo "boot" > ../config/${line}_info
+    	echo $type > ../config/${line}_info
         if [ -f ramdisk.cpio ]; then
             mv -f ramdisk.cpio ramdisk.cpio.comp
             comp=`magiskboot decompress ramdisk.cpio.comp ramdisk.cpio 2>&1 | head -n1 | cut -d'[' -f 2 | awk -F']' '{print $1}'`
@@ -511,9 +511,16 @@ extract_img() {
         if [ ! -d "$target_dir/config" ];then
         	mkdir $target_dir/config
     	fi
-    	if [ ! $type = "boot" ] || [ ! $type = "vendor_boot" ];then #因为分解boot的函数已经执行过了 由于特殊性不能统一在此
-            echo $type > $target_dir/config/${name}_info
-        fi
+
+        noecho="boot vendor_boot" #因为分解boot的函数已经执行过了 由于特殊性不能统一在此
+        for i in $noecho;do
+            if [ $type = $i ];then
+                return
+            fi
+        done
+
+        echo $type > $target_dir/config/${name}_info
+
     else
         yellow "$part_img 不存在"
     fi    
