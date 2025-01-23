@@ -70,6 +70,7 @@ fi
 for image in $boot_images;do
     if [ -f baserom/images/${image}.img ];then
         extract_img baserom/images/${image}.img portrom/images
+        rm -rf baserom/images/${image}.img
     fi
 done
 
