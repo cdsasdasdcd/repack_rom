@@ -193,7 +193,7 @@ make_super(){
     argvs="--metadata-size 65536 --super-name super "
     for i in $super_list; do
         image=$(echo "$i" | sed 's/.img//g')
-        img_size=$(du -sb $super_dir/$image.img | tr -cd 0-9)
+        img_size=$(du -sb "$super_dir/$image.img" | awk '{print $1}')
         if [ "$super_type" = "VAB" ] || [ "$super_type" = "AB" ];then
             if [ "$super_slot" = "a" ];then    
           	  argvs+="--partition "$image"_a:none:$img_size:${super_group}_a --image "$image"_a=$super_dir/$image.img --partition "$image"_b:none:0:${super_group}_b "
@@ -203,12 +203,12 @@ make_super(){
         else
             argvs+="--partition "$image":none:$img_size:${super_group} --image "$image"=$super_dir/$image.img "
         fi
-        sSize=$((sSize + img_size))
+        sSize=`echo "$sSize+$img_size" | bc`
         blue "Super sub-partition [$image] size: [$img_size]"
     done
 
     argvs+="--device super:$super_size "
-    let groupSize=super_size-1048576
+    groupSize=`echo "$super_size-1048576" | bc`
     if [ "$super_type" = "VAB" ] || [ "$super_type" = "AB" ];then
         argvs+="--metadata-slots 3 --virtual-ab "
         argvs+="--group ${super_group}_a:$groupSize "
