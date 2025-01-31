@@ -847,7 +847,7 @@ de(){
  if [ "$oo" != " " ];then
     for i in $oo
     do
-        del_app $i
+        del_app $i $2
     done
  fi
 }
@@ -858,7 +858,7 @@ del_app(){
         apk_info=`java -jar $APKEditor info -i $apk_dir`
         package_name=$(java -jar $APKEditor info -i $apk_dir | grep package | cut -d \" -f 2)
         app_name=$(java -jar $APKEditor info -i $apk_dir | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t\t\t $package_name($app_name) \t\t\t $2"
+        out="删除 $i \t\t $package_name($app_name) \t\t $2"
         echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
         echo -e "$out"
         rm -rf $i
