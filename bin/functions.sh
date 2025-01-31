@@ -852,8 +852,8 @@ de(){
         paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
         out="删除 $i \t $paackage_name \t $app_name \t $2"
-        echo "$out" >> ../../../del_app-by-zhlhlf.txt
-        echo "$out"
+        echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
+        echo -e "$out"
         rm -rf $i
     done
  fi
@@ -872,8 +872,8 @@ keep-del-app(){
         paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
         out="删除 $i \t $paackage_name \t $app_name \t $2"
-        echo "$out" >> ../../../del_app-by-zhlhlf.txt
-        echo "$out"
+        echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
+        echo -e "$out"
         rm -rf $i
     fi
   done
@@ -894,8 +894,8 @@ keep-del-app(){
         paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
         out="删除 $i \t $paackage_name \t $app_name \t $2"
-        echo "$out" >> ../../../del_app-by-zhlhlf.txt
-        echo "$out"
+        echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
+        echo -e "$out"
         rm -rf $i
       fi
     done
