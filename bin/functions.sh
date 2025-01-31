@@ -848,9 +848,10 @@ de(){
     for i in $oo
     do
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
-        paackage_name=$(java -jar $APKEditor info -i $apk_dir | grep package | cut -d \" -f 2)
-        app_name=$(java -jar $APKEditor info -i $apk_dir | grep AppName | cut -d \" -f 2)
-        out="删除 $i - $paackage_name - $app_name - $2"
+        apk_info=`java -jar $APKEditor info -i $apk_dir`
+        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
+        out="删除 $i \t $paackage_name \t $app_name \t $2"
         echo "$out" >> ../../../del_app-by-zhlhlf.txt
         echo "$out"
         rm -rf $i
@@ -867,9 +868,10 @@ keep-del-app(){
       echo "    保留--- $i"
     else
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
-        paackage_name=$(java -jar $APKEditor info -i $apk_dir | grep package | cut -d \" -f 2)
-        app_name=$(java -jar $APKEditor info -i $apk_dir | grep AppName | cut -d \" -f 2)
-        out="删除 $i - $paackage_name - $app_name - $2"
+        apk_info=`java -jar $APKEditor info -i $apk_dir`
+        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
+        out="删除 $i \t $paackage_name \t $app_name \t $2"
         echo "$out" >> ../../../del_app-by-zhlhlf.txt
         echo "$out"
         rm -rf $i
@@ -888,8 +890,10 @@ keep-del-app(){
         mv $i my_bigball/del-app/
       else
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
-        app_name=$(java -jar $APKEditor info -i $apk_dir | grep AppName | cut -d \" -f 2)
-        out="删除 $i - $paackage_name - $app_name - $2"
+        apk_info=`java -jar $APKEditor info -i $apk_dir`
+        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
+        out="删除 $i \t $paackage_name \t $app_name \t $2"
         echo "$out" >> ../../../del_app-by-zhlhlf.txt
         echo "$out"
         rm -rf $i
