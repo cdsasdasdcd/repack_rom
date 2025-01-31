@@ -847,16 +847,21 @@ de(){
  if [ "$oo" != " " ];then
     for i in $oo
     do
+        del_app $i
+    done
+ fi
+}
+
+del_app(){
+        i=$1
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
         apk_info=`java -jar $APKEditor info -i $apk_dir`
         package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $package_name \t $app_name \t $2"
+        out="删除 $i -- $package_name($app_name) -- $2"
         echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
         echo -e "$out"
         rm -rf $i
-    done
- fi
 }
 
 keep-del-app(){
@@ -867,14 +872,7 @@ keep-del-app(){
     if [ "$uu" ];then
       echo "    保留--- $i"
     else
-        apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
-        apk_info=`java -jar $APKEditor info -i $apk_dir`
-        package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
-        app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $package_name \t $app_name \t $2"
-        echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
-        echo -e "$out"
-        rm -rf $i
+        del_app $i
     fi
   done
   
@@ -889,14 +887,7 @@ keep-del-app(){
         echo "name=\"$name\" info_1=\"0\" info_2=\"0\" location=\"del-app/$(basename $i)/$name\"" >> my_bigball/apkcerts.txt
         mv $i my_bigball/del-app/
       else
-        apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
-        apk_info=`java -jar $APKEditor info -i $apk_dir`
-        package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
-        app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $package_name \t $app_name \t $2"
-        echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
-        echo -e "$out"
-        rm -rf $i
+        del_app $i
       fi
     done
   fi
