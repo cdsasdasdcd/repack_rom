@@ -849,9 +849,9 @@ de(){
     do
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
         apk_info=`java -jar $APKEditor info -i $apk_dir`
-        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $paackage_name \t $app_name \t $2"
+        out="删除 $i \t $package_name \t $app_name \t $2"
         echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
         echo -e "$out"
         rm -rf $i
@@ -869,9 +869,9 @@ keep-del-app(){
     else
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
         apk_info=`java -jar $APKEditor info -i $apk_dir`
-        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $paackage_name \t $app_name \t $2"
+        out="删除 $i \t $package_name \t $app_name \t $2"
         echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
         echo -e "$out"
         rm -rf $i
@@ -891,9 +891,9 @@ keep-del-app(){
       else
         apk_dir=$(ls $i/*apk | cut -d' ' -f 1)
         apk_info=`java -jar $APKEditor info -i $apk_dir`
-        paackage_name=$(echo $apk_info | grep package | cut -d \" -f 2)
+        package_name=$(echo $apk_info | grep package | cut -d \" -f 2)
         app_name=$(echo $apk_info | grep AppName | cut -d \" -f 2)
-        out="删除 $i \t $paackage_name \t $app_name \t $2"
+        out="删除 $i \t $package_name \t $app_name \t $2"
         echo -e "$out" >> ../../../del_app-by-zhlhlf.txt
         echo -e "$out"
         rm -rf $i
