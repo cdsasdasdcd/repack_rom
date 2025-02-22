@@ -65,8 +65,8 @@ done
 super_list=""
 for i in `find baserom/images/*.img`;do
     for j in $possible_super_list;do
-        if [[ $i = $j ]];then
-          super_list+=`basename $i`
+        if [[ $i = $j.img ]];then
+          super_list+="`basename $i` "
         fi
     done
 done   
@@ -114,8 +114,8 @@ if [ $is_yz = true ];then
     
 else
     for image in $super_list;do
-        extract_img baserom/images/${image}.img portrom/images
-        rm -r baserom/images/${image}.img
+        extract_img baserom/images/${image} portrom/images
+        rm -r baserom/images/${image}
     done
 
     get_rom_msg portrom/images
