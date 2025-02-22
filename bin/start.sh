@@ -5,6 +5,8 @@ tools_dir=${work_dir}/bin/$(uname)/$(uname -m)
 export PATH=$PATH:$(pwd)/bin/pys:$(pwd)/bin/$(uname)/$(uname -m)/
 chmod 777 * -R
 
+check unzip aria2c 7z zip java zipalign python3 zstd bc xmlstarlet
+
 # 导入环境变量
 . ./config
 
@@ -27,19 +29,6 @@ portromUrl="$2"
 
 baserom=base.rom
 portrom=port.rom
-
-shopt -s expand_aliases
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    yellow "检测到Mac，设置alias" "macOS detected,setting alias"
-    alias sed=gsed
-    alias tr=gtr
-    alias grep=ggrep
-    alias du=gdu
-    alias date=gdate
-    #alias find=gfind
-fi
-
-check unzip aria2c 7z zip java zipalign python3 zstd bc xmlstarlet
 
 # 下载底包
 download_rom "${baserom}" "${baseromUrl}"
@@ -66,13 +55,21 @@ else
     yellow "自定义编辑脚本不存在"
 fi
 
-#分解boot文件
-for image in $boot_images;do
-    if [ -f baserom/images/${image}.img ];then
-        extract_img baserom/images/${image}.img portrom/images
-        rm -rf baserom/images/${image}.img
-    fi
+#分解*boot*文件
+for i in `find baserom/images/*boot*`;do
+    extract_img $i portrom/images
+    rm -r $i
 done
+
+# 匹配super_list列表
+super_list=""
+for i in `find baserom/images/*.img`;do
+    for j in $possible_super_list;do
+        if [[ $i = $j ]];then
+          super_list+=`basename $i`
+        fi
+    done
+done   
 
 if [ $is_yz = true ];then
     #分解底包指定文件
@@ -116,13 +113,9 @@ if [ $is_yz = true ];then
     change_device_buildProp portrom/images
     
 else
-    list=${super_list}
-    list+=" reserve"
-    for image in $list;do
-        if [ -f baserom/images/${image}.img ];then
-            extract_img baserom/images/${image}.img portrom/images
-            rm -rf baserom/images/${image}.img
-        fi
+    for image in $super_list;do
+        extract_img baserom/images/${image}.img portrom/images
+        rm -r baserom/images/${image}.img
     done
 
     get_rom_msg portrom/images
@@ -185,10 +178,8 @@ if [ "$base_rom_density" ];then
 fi
 
 # 打包各镜像img
-for pname in ${boot_images} ${super_list};do
-    if [ -d "portrom/images/$pname" ];then
-        repack_img "portrom/images/$pname" $pack_type
-    fi
+for i in `ls portrom/images --hide config`;do
+    repack_img "portrom/images/$i" $pack_type
 done
 
 rm -rf portrom/images/*.img
@@ -205,13 +196,7 @@ if [ $make_super = true ];then
     super_size=`echo $data | awk '{print $3}'`
     super_type=`echo $data | awk '{print $4}'`
 
-    list=""
-    for pa in ${super_list};do
-        if [ -f "portrom/images/${pa}.img" ];then
-            list+="$pa "
-        fi
-    done
-    make_super "$super_size" "portrom/images" "$list" "$super_type" "$super_slot"
+    make_super "$super_size" "portrom/images" "$super_list" "$super_type" "$super_slot"
 
     blue "正在压缩 super.img"
     zstd portrom/images/super.img -o out/images/super.zst
@@ -221,19 +206,17 @@ fi
 
 blue "正在生成刷机zip"
 
-# 移动boot文件到out/images
-for image in $boot_images;do
-    if [ -f baserom/images/${image}.img ];then
-	    mv -f portrom/images/$image.img out/images/
-    fi
-done
+# 移动*boot*文件到out/images
+mv -f portrom/images/*boot*.img out/images/
 
 for i in dtbo *vbmeta*
 do
 	mv -f baserom/images/$i.img out/images/
 done
 
+#剩余的作为底包
 mv baserom/images/*.* out/firmware-update
+
 rm -rf portrom
 
 green "edit vbmeta.img 关闭avb校验"
@@ -241,6 +224,7 @@ patch-vbmeta.py out/images/vbmeta.img
 
 cd out
 echo "by zhlhlf" >> edit.txt
+
 # 在打包zip之前执行
 if [ -f ../zhlhlf2.sh ];then
     green "存在自定义编辑 开始执行"
