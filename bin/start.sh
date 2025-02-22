@@ -14,9 +14,6 @@ check unzip aria2c 7z zip java zipalign python3 zstd bc xmlstarlet
 . ./bin/functions.sh
 
 blue "正在清理文件" "Cleaning up.."
-for i in ${port_partition};do
-    [ -d ./${i} ] && rm -rf ./${i}
-done
 rm -rf app tmp baserom portrom out
 
 green "文件清理完毕" "Files cleaned up."
@@ -57,19 +54,21 @@ fi
 
 #分解*boot*文件
 for i in `find baserom/images/*boot*`;do
-    extract_img $i portrom/images
-    rm -r $i
+    extract_img $i portrom/images && rm -r $i
 done
 
 # 匹配super_list列表
 super_list=""
 for i in `find baserom/images/*.img`;do
+    filename=`basename $i`
     for j in $possible_super_list;do
-        if [[ $i = $j.img ]];then
-          super_list+="`basename $i` "
+        if [[ $filename = $j.img ]];then
+          super_list+="$filename "
         fi
     done
 done   
+
+yellow "super_list: $super_list"
 
 if [ $is_yz = true ];then
     #分解底包指定文件
