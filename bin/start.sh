@@ -244,8 +244,9 @@ green "---------------------"
 time=$(date +"%Y-%m-%d")
 hash=$(md5sum out.zip | head -c 5)
 
+base_rom_version=`echo $base_rom_version | sed s/[^0-9.A-Z]//g`
+
 if [ $is_yz = true ];then
-    base_rom_version=`echo $base_rom_version | sed s/[^0-9.A-Z]//g`
     mv out.zip ${base_product_device=`echo $base_product_device | sed s/[^0-9.A-Z]//g`}_${update_type}_${port_rom_version}_from_${port_product_device}_${pack_type}_${time}_${hash}.zip
 else
     mv out.zip ${base_product_device}_${update_type}_${base_rom_version}_${pack_type}_${time}_${hash}.zip
