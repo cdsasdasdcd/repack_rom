@@ -53,10 +53,9 @@ else
 fi
 
 #分解*boot*文件
-for i in `find baserom/images/*boot*`;do
-    extract_img $i portrom/images
-    echo $i
-    rm -rf "$i"
+for im in `find baserom/images/*boot*`;do
+    extract_img $im portrom/images
+    rm -r $im
 done
 
 # 匹配super_list列表
@@ -114,9 +113,9 @@ if [ $is_yz = true ];then
     change_device_buildProp portrom/images
     
 else
-    for i in $super_list;do
-        extract_img baserom/images/$i.img portrom/images
-        rm -r baserom/images/$i.img
+    for im in $super_list;do
+        extract_img baserom/images/$im.img portrom/images
+        rm -r baserom/images/$im.img
     done
 
     get_rom_msg portrom/images
