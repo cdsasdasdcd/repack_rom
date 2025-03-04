@@ -55,7 +55,7 @@ fi
 #分解*boot*文件
 for im in $(find baserom/images/*boot*); do
     extract_img $im portrom/images
-    rm -r $im
+    rm -rf $im
 done
 
 # 匹配super_list列表
@@ -115,7 +115,7 @@ if [ $is_yz = true ]; then
 else
     for im in $super_list; do
         extract_img baserom/images/$im.img portrom/images
-        rm -r baserom/images/$im.img
+        rm -rf baserom/images/$im.img
     done
 
     get_rom_msg portrom/images

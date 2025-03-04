@@ -205,7 +205,12 @@ make_super() {
         sSize=$(echo "$sSize+$img_size" | bc)
         blue "Super sub-partition [$image] size: [$img_size]"
     done
+    yellow "super_type: $super_type  slot: $super_slot  set-size: ${super_size} allSize: $sSize"
 
+    if [ $sSize -gt $super_size ];then
+        super_size=`echo "$sSize + 1048576" | bc`
+        yellow "super_size < allSize  use new super_size: $super_size"
+    fi
     argvs+="--device super:$super_size "
     groupSize=$(echo "$super_size-1048576" | bc)
     if [ "$super_type" = "VAB" ] || [ "$super_type" = "AB" ]; then
@@ -220,7 +225,6 @@ make_super() {
     if [ -f "$super_dir/super.img" ]; then
         rm -rf $super_dir/super.img
     fi
-    yellow "super_type: $super_type  slot: $super_slot  set-size: ${super_size} allSize: $sSize"
     argvs+="-F --output $super_dir/super.img"
     if [ ! -d tmp ]; then
         mkdir tmp

@@ -28,6 +28,6 @@ pack_type=auto
 base_rom_density=380
 
 # 分解img 为 true 生效  默认 true
-extract_img = true
+extract_img=true
 
 build_user="zhlhlf"
