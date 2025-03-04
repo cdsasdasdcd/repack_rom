@@ -38,14 +38,14 @@ extract_rom ${baserom} baserom/images/
 extract_rom ${portrom} portrom/
 
 #判断是否是移植rom 根据移植包有没有下载成功和解压成功
-if [ -f portrom/system.img ];then
+if [ -f portrom/system.img ]; then
     is_yz=true
 else
     is_yz=false
 fi
 
-# 
-if [ -f ./zhlhlf0.sh ];then
+#
+if [ -f ./zhlhlf0.sh ]; then
     green "存在自定义编辑 开始执行"
     . ./zhlhlf0.sh
 else
@@ -53,39 +53,39 @@ else
 fi
 
 #分解*boot*文件
-for im in `find baserom/images/*boot*`;do
+for im in $(find baserom/images/*boot*); do
     extract_img $im portrom/images
     rm -r $im
 done
 
 # 匹配super_list列表
 super_list=""
-for i in `find baserom/images/*.img | sed s/.img//g`;do
-    filename=`basename $i`
-    for j in $possible_super_list;do
-        if [[ $filename = $j ]];then
-          super_list+="$filename "
+for i in $(find baserom/images/*.img | sed s/.img//g); do
+    filename=$(basename $i)
+    for j in $possible_super_list; do
+        if [[ $filename = $j ]]; then
+            super_list+="$filename "
         fi
     done
-done   
+done
 
 yellow "super_list: $super_list"
 
-if [ $is_yz = true ];then
+if [ $is_yz = true ]; then
     #分解底包指定文件
     green "开始分解底包中指定镜像"
     list="system product system_ext my_product my_manifest odm"
-    for image in $list;do
-        if [ -f baserom/images/${image}.img ];then
+    for image in $list; do
+        if [ -f baserom/images/${image}.img ]; then
             extract_img baserom/images/${image}.img baserom/images
         fi
     done
 
     # Move those to portrom folder. We need to pack those imgs into final port rom
-    green "开始分解要替换为底包于目标包的镜像" 
+    green "开始分解要替换为底包于目标包的镜像"
     list="vendor odm my_company my_preload"
-    for image in $list;do
-        if [ -f baserom/images/${image}.img ];then
+    for image in $list; do
+        if [ -f baserom/images/${image}.img ]; then
             extract_img baserom/images/${image}.img portrom/images
         else
             yellow "$image 不存在"
@@ -93,15 +93,15 @@ if [ $is_yz = true ];then
     done
 
     # 提取目标rom指定镜像并分解
-    green "开始分解目标包剩余逻辑分区镜像" 
+    green "开始分解目标包剩余逻辑分区镜像"
     list=${super_list}
     list+=" reserve"
-    for image in ${list};do
+    for image in ${list}; do
         rm -rf baserom/images/${image}.img
-        if [ -d portrom/images/${image} ];then
+        if [ -d portrom/images/${image} ]; then
             continue
         fi
-        if [ -f portrom/${image}.img ];then
+        if [ -f portrom/${image}.img ]; then
             extract_img portrom/${image}.img portrom/images
             rm -rf portrom/${image}.img
         fi
@@ -111,9 +111,9 @@ if [ $is_yz = true ];then
 
     #全局替换device_code
     change_device_buildProp portrom/images
-    
+
 else
-    for im in $super_list;do
+    for im in $super_list; do
         extract_img baserom/images/$im.img portrom/images
         rm -r baserom/images/$im.img
     done
@@ -122,14 +122,8 @@ else
 
 fi
 
-if grep -q "ro.build.ab_update=true" portrom/images/vendor/build.prop; then
-    update_type=AB
-else
-    update_type=A
-fi
-
 # 通常是精简脚本或者移植脚本 在打解目录执行
-if [ -f ./zhlhlf1.sh ];then
+if [ -f ./zhlhlf1.sh ]; then
     green "存在自定义编辑 开始执行"
     cd portrom/images
     . ../../zhlhlf1.sh | tee -a ../../out/edit.txt
@@ -138,63 +132,77 @@ else
     yellow "自定义编辑脚本不存在"
 fi
 
-# build.prop 修改 时间
-change_buildTime_buildProp portrom/images
+# if extract img
+if [ $extract_img = true ]; then
 
-#去除系统签名校验
-if [ $closeSystemApkSingnCheck = true ];then
-	blue "去系统apk签名验证.."
-	#处理 framework.jar 去系统apk签名验证
-	# patch_methods="getMinimumSignatureSchemeVersionForTargetSdk "
-	# paths="android/util/apk "
-	# patch1_jar portrom/images/system/system/framework/framework.jar "$paths" "$patch_methods"
+    if grep -q "ro.build.ab_update=true" portrom/images/vendor/build.prop; then
+        update_type=AB
+    else
+        update_type=A
+    fi
 
-	#处理 services.jar 去系统apk签名验证
-	patch_methods="--assertMinSignatureSchemeIsValid "
-	paths="com/android/server/pm/ "
-	patch1_jar portrom/images/system/system/framework/services.jar "$paths" "$patch_methods"
+    # build.prop 修改 时间
+    change_buildTime_buildProp portrom/images
 
-	#处理 services.jar 去系统apk签名验证
-	patch_methods="getMinimumSignatureSchemeVersionForTargetSdk"
-	paths="com/android/server/pm/ "
-	patch2_jar portrom/images/system/system/framework/services.jar "$paths" "$patch_methods"
+    #去除系统签名校验
+    if [ $closeSystemApkSingnCheck = true ]; then
+        blue "去系统apk签名验证.."
+        #处理 framework.jar 去系统apk签名验证
+        # patch_methods="getMinimumSignatureSchemeVersionForTargetSdk "
+        # paths="android/util/apk "
+        # patch1_jar portrom/images/system/system/framework/framework.jar "$paths" "$patch_methods"
+
+        #处理 services.jar 去系统apk签名验证
+        patch_methods="--assertMinSignatureSchemeIsValid "
+        paths="com/android/server/pm/ "
+        patch1_jar portrom/images/system/system/framework/services.jar "$paths" "$patch_methods"
+
+        #处理 services.jar 去系统apk签名验证
+        patch_methods="getMinimumSignatureSchemeVersionForTargetSdk"
+        paths="com/android/server/pm/ "
+        patch2_jar portrom/images/system/system/framework/services.jar "$paths" "$patch_methods"
+    fi
+
+    #添加erofs文件系统fstab
+    if [ $pack_type = "erofs" ]; then
+        edit_fstab_ext_to_erofs portrom/images
+    fi
+
+    if [ $disable_avb_verify = true ]; then
+        disable_avb_verify portrom/images
+    fi
+
+    if [ $remove_data_encrypt = true ]; then
+        remove_data_encrypt portrom/images
+    fi
+
+    if [ "$base_rom_density" ]; then
+        edit_rom_density portrom/images $base_rom_density
+    fi
+
+    # 打包各镜像img
+    for i in $(ls portrom/images --hide config); do
+        repack_img "portrom/images/$i" $pack_type
+    done
+
+    rm -rf portrom/images/*.img
+    mv -f portrom/images/out/*.img portrom/images/
+
+    green "edit vbmeta.img 关闭avb校验"
+    patch-vbmeta.py portrom/images/vbmeta.img
+
 fi
-
-#添加erofs文件系统fstab
-if [ $pack_type = "erofs" ];then
-    edit_fstab_ext_to_erofs portrom/images
-fi
-
-if [ $disable_avb_verify = true ];then
-    disable_avb_verify portrom/images
-fi
-
-if [ $remove_data_encrypt = true ];then
-    remove_data_encrypt portrom/images
-fi
-
-if [ "$base_rom_density" ];then
-    edit_rom_density portrom/images $base_rom_density
-fi
-
-# 打包各镜像img
-for i in `ls portrom/images --hide config`;do
-    repack_img "portrom/images/$i" $pack_type
-done
-
-rm -rf portrom/images/*.img
-mv -f portrom/images/out/*.img portrom/images/
 
 # 打包super
-if [ $make_super = true ];then
+if [ $make_super = true ]; then
 
-    data=`grep "$base_product_device $update_type" bin/superMsgList.txt`
-    if [ ! "$data" ];then
+    data=$(grep "$base_product_device $update_type" bin/superMsgList.txt)
+    if [ ! "$data" ]; then
         yellow "未找到 $base_product_device $update_type 机型打包super参数 将使用默认参数"
-        data=`sed -n 1p bin/superMsgList.txt`
+        data=$(sed -n 1p bin/superMsgList.txt)
     fi
-    super_size=`echo $data | awk '{print $3}'`
-    super_type=`echo $data | awk '{print $4}'`
+    super_size=$(echo $data | awk '{print $3}')
+    super_type=$(echo $data | awk '{print $4}')
 
     make_super "$super_size" "portrom/images" "$super_list" "$super_type" "$super_slot"
 
@@ -209,9 +217,8 @@ blue "正在生成刷机zip"
 # 移动*boot*文件到out/images
 mv -f portrom/images/*boot*.img out/images/
 
-for i in dtbo *vbmeta*
-do
-	mv -f baserom/images/$i.img out/images/
+for i in dtbo *vbmeta*; do
+    mv -f baserom/images/$i.img out/images/
 done
 
 #剩余的作为底包
@@ -219,14 +226,11 @@ mv baserom/images/*.* out/firmware-update
 
 rm -rf portrom
 
-green "edit vbmeta.img 关闭avb校验"
-patch-vbmeta.py out/images/vbmeta.img
-
 cd out
-echo "by zhlhlf" >> edit.txt
+echo "by zhlhlf" >>edit.txt
 
 # 在打包zip之前执行
-if [ -f ../zhlhlf2.sh ];then
+if [ -f ../zhlhlf2.sh ]; then
     green "存在自定义编辑 开始执行"
     . ../zhlhlf2.sh
 else
@@ -235,23 +239,23 @@ fi
 
 green "要打包为zip的文件目录树"
 green "---------------------"
-du -h `find -type f`
+du -h $(find -type f)
 green "---------------------"
 
 #多线程压缩 加快速度
-7z a -tzip -mmt=on out.zip * >> /dev/null
+7z a -tzip -mmt=on out.zip * >>/dev/null
 
 time=$(date +"%Y-%m-%d")
 hash=$(md5sum out.zip | head -c 5)
 
-base_rom_version=`echo $base_rom_version | sed s/[^0-9.A-Z]//g`
+base_rom_version=$(echo $base_rom_version | sed s/[^0-9.A-Z]//g)
 
-if [ $is_yz = true ];then
-    mv out.zip ${base_product_device=`echo $base_product_device | sed s/[^0-9.A-Z]//g`}_${update_type}_${port_rom_version}_from_${port_product_device}_${pack_type}_${time}_${hash}.zip
+if [ $is_yz = true ]; then
+    mv out.zip ${base_product_device=$(echo $base_product_device | sed s/[^0-9.A-Z]//g)}_${update_type}_${port_rom_version}_from_${port_product_device}_${pack_type}_${time}_${hash}.zip
 else
     mv out.zip ${base_product_device}_${update_type}_${base_rom_version}_${pack_type}_${time}_${hash}.zip
 fi
 
 cd ..
 green "输出包路径："
-green `ls out/*.zip`
+green $(ls out/*.zip)
