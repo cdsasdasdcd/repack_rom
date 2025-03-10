@@ -208,7 +208,7 @@ make_super() {
     yellow "super_type: $super_type  slot: $super_slot  set-size: ${super_size} allSize: $sSize"
 
     if [ $sSize -gt $super_size ];then
-        super_size=`echo "$sSize / 1024 * 1024 + 1048576 * 20" | bc`
+        super_size=`echo "$sSize / 1048576 * 1048576 + 1048576 * 16" | bc`
         yellow "super_size < allSize  use new super_size: $super_size"
     fi
     argvs+="--device super:$super_size "
