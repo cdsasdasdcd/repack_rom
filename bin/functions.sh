@@ -651,8 +651,8 @@ disable_avb_verify() {
             continue
         fi
         green "edit $file ..."
-        sed -i s#avb.*system,#"" #g $file
-        sed -i s#avb.*vendor,#"" #g $file
+        sed -i s#avb.*system,#""#g $file
+        sed -i s#avb.*vendor,#""#g $file
         sed -i 's/,avb_keys.*key//g' $file
     done
 }
