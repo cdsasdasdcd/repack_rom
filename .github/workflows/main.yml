@@ -30,6 +30,11 @@ on:
         required: true
         default: 'ls ; '
 
+      upload:
+        description: '123 tyy2/short_time_files tyy2_crypt'
+        required: true
+        default: 'tyy2/short_time_files'
+
 
 jobs:
     build:
@@ -70,4 +75,4 @@ jobs:
               
         - name: upload
           run: |
-              curl -sL https://raw.githubusercontent.com/zhlhlf/text/refs/heads/main/upload/upload.sh | bash -s ${{ secrets.RCK }} 
+              curl -sL https://raw.githubusercontent.com/zhlhlf/text/refs/heads/main/upload/upload.sh | bash -s "${{ secrets.RCK }}" "${{ inputs.upload }}"
