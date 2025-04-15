@@ -293,7 +293,7 @@ extract_rom() {
     file=$(find tmp/extractRom -name "payload.bin")
     if [ "$file" ]; then
         blue "开始分解 payload.bin包"
-        payload-dumper tmp/extractRom/payload.bin tmp/extractRom >/dev/null 2>&1 || error "分解 [payload.bin] 时出错"
+        payload-dumpe tmp/extractRom/payload.bin tmp/extractRom >/dev/null 2>&1 || error "分解 [payload.bin] 时出错"
         rm -r tmp/extractRom/payload.bin
     fi
 
