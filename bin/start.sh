@@ -188,8 +188,8 @@ if [ $extract_img = true ]; then
     rm -rf portrom/images/*.img
     mv -f portrom/images/out/*.img portrom/images/
 
-    green "edit vbmeta.img 关闭avb校验"
-    patch-vbmeta.py portrom/images/vbmeta.img
+    #green "edit vbmeta.img 关闭avb校验"
+    #patch-vbmeta.py portrom/images/vbmeta.img
 
 fi
 
@@ -208,14 +208,12 @@ if [ $make_super = true ]; then
 
     blue "正在压缩 super.img"
     zstd portrom/images/super.img -o out/images/super.zst
-else
-    mv portrom/images/*.img out/images
+
 fi
 
 blue "正在生成刷机zip"
 
-# 移动*boot*文件到out/images
-mv -f portrom/images/*boot*.img out/images/
+mv portrom/images/*.img out/images
 
 for i in dtbo *vbmeta*; do
     mv -f baserom/images/$i.img out/images/
