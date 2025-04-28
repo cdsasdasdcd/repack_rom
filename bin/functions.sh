@@ -194,6 +194,7 @@ make_super() {
         image=$(echo "$i" | sed 's/.img//g')
         if [ ! -f $super_dir/$image.img ]; then
             yellow "$super_dir/$image.img 不存在"
+            continue
         fi
         img_size=$(du -sb "$super_dir/$image.img" | awk '{print $1}')
         if [ "$super_type" = "VAB" ] || [ "$super_type" = "AB" ]; then
