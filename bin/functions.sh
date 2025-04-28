@@ -192,6 +192,9 @@ make_super() {
     argvs="--metadata-size 65536 --super-name super "
     for i in $super_list; do
         image=$(echo "$i" | sed 's/.img//g')
+        if [ ! -f $super_dir/$image.img ]; then
+            yellow "$super_dir/$image.img 不存在"
+        fi
         img_size=$(du -sb "$super_dir/$image.img" | awk '{print $1}')
         if [ "$super_type" = "VAB" ] || [ "$super_type" = "AB" ]; then
             if [ "$super_slot" = "a" ]; then
@@ -207,8 +210,8 @@ make_super() {
     done
     yellow "super_type: $super_type  slot: $super_slot  set-size: ${super_size} allSize: $sSize"
 
-    if [ $sSize -gt $super_size ];then
-        super_size=`echo "$sSize / 1048576 * 1048576 + 1048576 * 16" | bc`
+    if [ $sSize -gt $super_size ]; then
+        super_size=$(echo "$sSize / 1048576 * 1048576 + 1048576 * 16" | bc)
         yellow "super_size < allSize  use new super_size: $super_size"
     fi
     argvs+="--device super:$super_size "
@@ -654,8 +657,8 @@ disable_avb_verify() {
             continue
         fi
         green "edit $file ..."
-        sed -i s#avb.*system,#""#g $file
-        sed -i s#avb.*vendor,#""#g $file
+        sed -i s#avb.*system,#"" #g $file
+        sed -i s#avb.*vendor,#"" #g $file
         sed -i 's/,avb_keys.*key//g' $file
     done
 }
