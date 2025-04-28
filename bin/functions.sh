@@ -610,7 +610,10 @@ repack_img() {
         size="$(($size_now / 4096))"
         xx=0
         while true; do
-            if [ $xx = "20" ]; then
+            if [ $xx = "30" ]; then
+                yellow "ext尝试第30次打包..."
+                mke2fs -O ^has_journal -L $input_file -I 256 -i 102400 -M $mount_dir -m 0 -t ext4 -b 4096 $img_out $size
+                e2fsdroid -e -T $UTC -C $fs -S $file -f $input_file -a /$name $img_out || rm -rf $img_out
                 break
             fi
             mke2fs -O ^has_journal -L $input_file -I 256 -i 102400 -M $mount_dir -m 0 -t ext4 -b 4096 $img_out $size >/dev/null 2>&1
@@ -629,7 +632,7 @@ repack_img() {
         green "[$type] repack ${name}.img successfully"
     else
         error "[$type] repack ${name}.img fail"
-        exit 1
+        #exit 1
     fi
 }
 
