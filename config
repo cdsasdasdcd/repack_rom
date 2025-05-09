@@ -10,7 +10,7 @@ closeSystemApkSingnCheck=false
 remove_data_encrypt=true
 
 # 关闭avb验证 为 true 生效
-disable_avb_verify=true
+disable_avb_verify=false
 
 # 可能的super子分区列表 模糊匹配
 possible_super_list="vendor system system_ext product odm *_dlkm my_*"
@@ -25,7 +25,7 @@ super_slot=a
 pack_type=auto
 
 #如果为空不进行更改
-base_rom_density=380
+base_rom_density=
 
 # 分解img 为 true 生效  默认 true
 extract_img=true
