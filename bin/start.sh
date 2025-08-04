@@ -209,6 +209,9 @@ if [ $make_super = true ]; then
     blue "正在压缩 super.img"
     zstd portrom/images/super.img -o out/images/super.zst
 
+    for i in $super_list super; do
+        rm -rf portrom/images/$i*
+    done
 fi
 
 blue "正在生成刷机zip"
